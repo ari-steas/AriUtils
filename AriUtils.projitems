@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <MSBuildAllProjects Condition="'$(MSBuildVersion)' == '' Or '$(MSBuildVersion)' &lt; '16.0'">$(MSBuildAllProjects);$(MSBuildThisFileFullPath)</MSBuildAllProjects>
+    <HasSharedItems>true</HasSharedItems>
+    <SharedGUID>8a3cdcc5-4b55-4d87-a415-698a0e1ff06f</SharedGUID>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="$(MSBuildThisFileDirectory)AsyncSharedObjectPool.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IcoSphereConstructor.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)IniConfig.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Log.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MathUtils.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)MiscUtils.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)ObjectPool.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)OrderedDictionary.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)PaintUtils.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)SubpartManager.cs" />
+  </ItemGroup>
+</Project>
