@@ -38,26 +38,25 @@ namespace AriUtils
         #region General Config
 
         private static IniConfig _generalConfig = new IniConfig(
-            FileLocation.WorldStorage,
+            IniConfig.FileLocation.WorldStorage,
             "config.ini",
             "General Config",
             " Skytech Engines World Settings\n\n Set config values below,\n   then restart the world.\n Delete a line to reset it to default.\n ");
 
         #endregion
 
-        internal static bool CheckShouldLoad(IMyModContext myModContext)
+        internal static bool CheckShouldLoad(IMyModContext myModContext, Func<string, bool> modCheck)
         {
             foreach (var mod in MyAPIGateway.Session.Mods)
             {
                 if (mod.GetModContext().ModPath == myModContext.ModPath)
                     continue;
 
-
                 string modIdFormatted = mod.GetModContext().ModId.RemoveChars(' ').ToLower();
-                if (modIdFormatted.Contains("skytech") && modIdFormatted.Contains("Engines"))
+                if (modCheck.Invoke(modIdFormatted))
                 {
                     Killswitch = true;
-                    MyLog.Default.WriteLineAndConsole($"[Skytech Engines] Found local Skytech.Engines version \"{mod.GetPath()}\" - cancelling init and disabling mod. My ModId: {SharedMain.I.ModContext.ModId}");
+                    MyLog.Default.WriteLineAndConsole($"[Skytech Engines] Found local Skytech.Engines version \"{mod.GetPath()}\" - cancelling init and disabling mod. My ModId: {myModContext.ModId}");
                     return false;
                 }
             }
@@ -182,7 +181,6 @@ namespace AriUtils
             MyAPIGateway.Entities.OnEntityAdd -= OnEntityAdd;
             Players = null;
             Planets = null;
-            LowRcsSubtypes = null;
             if (MyAPIGateway.Session.IsServer)
                 MyAPIGateway.Multiplayer.UnregisterSecureMessageHandler(DataNetworkId, ServerMessageHandler);
             else
