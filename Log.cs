@@ -55,6 +55,7 @@ namespace AriUtils
                 _writer.WriteLine($"Local DateTime: {DateTime.Now:G} (UTC {(utcOffset > 0 ? "+" : "")}{utcOffset:00}:{(DateTime.Now - DateTime.UtcNow).Minutes:00})");
                 _writer.WriteLine( "");
                 _writer.WriteLine($"Space Engineers v{MyAPIGateway.Session?.Version}");
+                _writer.WriteLine($"Last mod build: $MDK_DATETIME$");
                 _writer.WriteLine($"Server: {MyAPIGateway.Session?.IsServer} | Client: {!MyAPIGateway.Utilities.IsDedicated}");
                 _writer.WriteLine($"Session: {MyAPIGateway.Session?.Name ?? "MultiplayerSession"} | Client Info: {(string.IsNullOrEmpty(MyAPIGateway.Multiplayer?.MyName) ? null : MyAPIGateway.Multiplayer?.MyName) ?? "DedicatedHost"}::{MyAPIGateway.Multiplayer?.MyId}");
                 _writer.WriteLine("=================================================");
