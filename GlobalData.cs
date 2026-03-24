@@ -7,6 +7,7 @@ using VRage.Game;
 using VRage.Game.ModAPI;
 using VRage.Game.ModAPI.Ingame.Utilities;
 using VRage.Game.ObjectBuilders.Definitions;
+using VRage.Input;
 using VRage.ModAPI;
 using VRage.Utils;
 
@@ -31,6 +32,10 @@ namespace AriUtils
         public static IMyModContext ModContext;
         public static int DebugLevel = 0;
         public static List<MyPlanet> Planets = new List<MyPlanet>();
+        public static HudState HudVisible = (HudState) (MyAPIGateway.Session?.Config?.HudState ?? 1);
+        public static Action<HudState> OnHudVisibleChanged = null;
+        public static Random Random = new Random();
+
 
         public static readonly MyDefinitionId ElectricityId = new MyDefinitionId(typeof(MyObjectBuilder_GasProperties), "Electricity");
         public static readonly MyDefinitionId HydrogenId = new MyDefinitionId(typeof(MyObjectBuilder_GasProperties), "Hydrogen");
@@ -56,7 +61,7 @@ namespace AriUtils
                 if (modCheck.Invoke(modIdFormatted))
                 {
                     Killswitch = true;
-                    MyLog.Default.WriteLineAndConsole($"[Skytech Engines] Found local Skytech.Engines version \"{mod.GetPath()}\" - cancelling init and disabling mod. My ModId: {myModContext.ModId}");
+                    MyLog.Default.WriteLineAndConsole($"[{GlobalData.FriendlyModName}] Found local mod version \"{mod.GetPath()}\" - cancelling init and disabling mod. My ModId: {myModContext.ModId}");
                     return false;
                 }
             }
@@ -170,10 +175,21 @@ namespace AriUtils
             }
         }
 
-        internal static void UpdatePlayers()
+        internal static void Update()
         {
-            Players.Clear();
-            MyAPIGateway.Multiplayer.Players.GetPlayers(Players);
+            if (MyAPIGateway.Session.GameplayFrameCounter % 10 == 0)
+            {
+                Players.Clear();
+                MyAPIGateway.Multiplayer.Players.GetPlayers(Players);
+            }
+
+            if (!MyAPIGateway.Utilities.IsDedicated)
+            {
+                if (MyAPIGateway.Input.IsNewKeyPressed(MyKeys.Tab))
+                {
+                    UpdateVisible(MyAPIGateway.Session?.Config?.HudState ?? 1);
+                }
+            }
         }
 
         internal static void Unload()
@@ -194,6 +210,19 @@ namespace AriUtils
             var planet = entity as MyPlanet;
             if (planet != null)
                 Planets.Add(planet);
+        }
+
+        private static void UpdateVisible(int visible)
+        {
+            HudVisible = (HudState) visible;
+            OnHudVisibleChanged?.Invoke(HudVisible);
+        }
+
+        public enum HudState
+        {
+            Hidden = 0,
+            VisibleDesc = 1,
+            VisibleNoDesc = 2,
         }
     }
 }

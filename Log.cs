@@ -20,7 +20,6 @@ namespace AriUtils
         private static int _currentFileSize = 0;
 
         private static IMyModContext _modContext;
-        private static string ModName = "NULL / AWAITING INIT";
         private static string LogPath = "NULL / AWAITING INIT";
         private static TextWriter _writer;
         private static string _indent = "";
@@ -29,10 +28,9 @@ namespace AriUtils
         {
             _exceptions = new Queue<int>(MaxExceptionIntervalTicks + 1);
             _modContext = context;
-            ModName = context.ModName;
             try
             {
-                string logName = ModName.Replace(" ", "");
+                string logName = GlobalData.FriendlyModName.Replace(" ", "");
                 LogPath = logName + ".log";
                 bool didRotateLogs = MyAPIGateway.Utilities.FileExistsInGlobalStorage(logName + ".log");
                 if (didRotateLogs)
@@ -50,12 +48,12 @@ namespace AriUtils
 
                 int utcOffset = (DateTime.Now - DateTime.UtcNow).Hours;
 
-                _writer.WriteLine($"{ModName} Debug Log");
+                _writer.WriteLine($"{GlobalData.FriendlyModName} Debug Log");
                 _writer.WriteLine( "  by Aristeas");
                 _writer.WriteLine($"Local DateTime: {DateTime.Now:G} (UTC {(utcOffset > 0 ? "+" : "")}{utcOffset:00}:{(DateTime.Now - DateTime.UtcNow).Minutes:00})");
                 _writer.WriteLine( "");
                 _writer.WriteLine($"Space Engineers v{MyAPIGateway.Session?.Version}");
-                _writer.WriteLine($"Last mod build: $MDK_DATETIME$");
+                _writer.WriteLine($"Last mod build: {GlobalData.LastBuildTime}");
                 _writer.WriteLine($"Server: {MyAPIGateway.Session?.IsServer} | Client: {!MyAPIGateway.Utilities.IsDedicated}");
                 _writer.WriteLine($"Session: {MyAPIGateway.Session?.Name ?? "MultiplayerSession"} | Client Info: {(string.IsNullOrEmpty(MyAPIGateway.Multiplayer?.MyName) ? null : MyAPIGateway.Multiplayer?.MyName) ?? "DedicatedHost"}::{MyAPIGateway.Multiplayer?.MyId}");
                 _writer.WriteLine("=================================================");
@@ -64,7 +62,7 @@ namespace AriUtils
                 if (didRotateLogs)
                     Log.Info("Log.Init", $"Rotated previous log file to .\\{logName}_PREV.log");
 
-                MyLog.Default.WriteLineAndConsole($@"[{ModName}] - Debug log can be found in %AppData%\Roaming\SpaceEngineers\Storage\{LogPath}");
+                MyLog.Default.WriteLineAndConsole($@"[{GlobalData.FriendlyModName}] - Debug log can be found in %AppData%\Roaming\SpaceEngineers\Storage\{LogPath}");
             }
             catch (Exception ex)
             {
@@ -95,9 +93,9 @@ namespace AriUtils
                 MyAPIGateway.Utilities.InvokeOnGameThread(() =>
                 {
                     MyAPIGateway.Utilities.ShowNotification(
-                        $"[{ModName}] Log exceeded file size limit - something has gone horribly wrong.",
+                        $"[{GlobalData.FriendlyModName}] Log exceeded file size limit - something has gone horribly wrong.",
                         20000, "Red");
-                    MyLog.Default.WriteLineAndConsole($"[{ModName}] Log exceeded file size limit {MaxFileSize/1024:N0}kB - truncating all further info messages.");
+                    MyLog.Default.WriteLineAndConsole($"[{GlobalData.FriendlyModName}] Log exceeded file size limit {MaxFileSize/1024:N0}kB - truncating all further info messages.");
                 });
             }
             _writer?.Flush();
@@ -117,7 +115,7 @@ namespace AriUtils
             var toWrite = $"{DateTime.UtcNow:HH:mm:ss}\t{_indent}[{(fatal ? "FATAL " : "")}EXCEPTION]\t{source}\n{exception}";
             _writer?.WriteLine(toWrite);
             _writer?.Flush();
-            MyLog.Default.WriteLineAndConsole($"[{ModName}] [{(fatal ? "FATAL " : "")}EXCEPTION]\t{source}\n{exception}");
+            MyLog.Default.WriteLineAndConsole($"[{GlobalData.FriendlyModName}] [{(fatal ? "FATAL " : "")}EXCEPTION]\t{source}\n{exception}");
             _currentFileSize += toWrite.Length;
 
             // WHY DON'T YOU CHECK CONTROL.VISIBLE???
@@ -179,7 +177,7 @@ namespace AriUtils
                 // we really don't want to throw any exceptions early
                 if (context == null)
                 {
-                    ModName = Log.ModName;
+                    ModName = GlobalData.FriendlyModName;
                     ModId = "HANDLER FAIL";
                     ModServiceName = "HANDLER FAIL)\n" + customInfo + "\n\n\n\n\n\n\n\n\n\n\n\n\n\n";
                     ModPath = "HANDLER FAIL";
